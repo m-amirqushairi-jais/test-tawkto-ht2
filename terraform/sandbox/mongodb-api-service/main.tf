@@ -4,6 +4,7 @@ terraform {
   required_providers {
     google = {
       source = "hashicorp/google"
+      version = "~> 7.0" # task 2: fix 8 - specify the version of the Google provider to ensure compatibility and prevent issues with future updates
     }
   }
 }
