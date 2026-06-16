@@ -18,7 +18,7 @@ spec:
         - name: api-service
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
+          ports:
             - containerPort: {{ .Values.service.targetPort }}
           env:
             - name: PORT
@@ -29,7 +29,7 @@ spec:
               value: "{{ .Values.mongo.db }}"
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /
               port: {{ .Values.service.targetPort }}
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -37,7 +37,7 @@ spec:
             httpGet:
               path: /healthz
               port: {{ .Values.service.targetPort }}
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

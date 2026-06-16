@@ -1,9 +1,9 @@
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: api-service
-  tag: latest
-  pullPolicy: Always
+  tag: sandbox # task 1: fix 8 - remove latest tag and use a specific tag for the sandbox environment to ensure consistency and reproducibility of deployments.
+  pullPolicy: IfNotPresent # task 1: fix 9 - set pull policy to IfNotPresent to avoid unnecessary image pulls in the sandbox environment, which can speed up deployments and reduce load on the container registry.
 
 service:
   port: 80
@@ -13,15 +13,21 @@ service:
 # "self-contained" and easy to deploy.
 mongo:
   db: api_service
-  # Single host, no replicaSet parameter.
-  uri: "mongodb://api_user:sup3rs3cr3t-changeme@mongodb-0.mongodb.svc.cluster.local:27017/api_service?authSource=admin"
-  password: "sup3rs3cr3t-changeme"
+  uri: "mongodb://mongodb-0.mongodb.data.svc.cluster.local:27017/api_service?replicaSet=rs0" # task 1: fix 10 - remove hardcoded MongoDB URI and credentials from the values file; these should be provided at runtime via environment variables or a secrets manager to enhance security and flexibility of the deployment.
+  password: ""
 
-resources: {}
+# task 1: fix 11 - need to define cpu and memory requests and limits in the values file to provide a baseline for resource allocation; this helps to ensure that the application has enough resources to run effectively while also preventing it from consuming excessive resources in the cluster.
+resources: 
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
 
 # Pod disruption budget for the workload.
 pdb:
-  enabled: false
+  enabled: true # task 1: fix 12 - enable Pod Disruption Budget to ensure that at least one replica of the application is always available during voluntary disruptions (e.g., node maintenance), which helps to improve the availability and reliability of the application in the sandbox environment.
   minAvailable: 1
 
 nodeSelector: {}

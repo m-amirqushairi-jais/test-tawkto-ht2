@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: apps
 
 helmGlobals:
-  chartHome: ../../../helm-chart
+  chartHome: ../../../helm-charts # task 1: fix 5 - update the path to the Helm charts to point to the correct location in the repository.
 
 helmCharts:
   - name: api-service
@@ -17,14 +17,14 @@ helmCharts:
 
 # Pin the image for the sandbox.
 images:
-  - name: api
+  - name: api-service # task 1: fix 6 - update the image name to match the repository defined in the helmCharts section.
     newTag: sandbox
 
 # Give the workload a small resource floor in the sandbox.
 patches:
   - target:
       kind: Deployment
-      name: api-svc
+      name: api-service # task 1: fix 7 - update the name of the deployment to match the release name defined in the helmCharts section.
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/resources
