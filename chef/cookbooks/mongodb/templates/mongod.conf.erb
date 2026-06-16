@@ -3,15 +3,10 @@ storage:
 
 net:
   port: <%= node['mongodb']['port'] %>
-  bindIp: 0.0.0.0
+  bindIp: <%= node['mongodb']['bind_ip'] %> 
 
 security:
-  authorization: disabled
+  authorization: enabled
 
 replication:
   replSetName: rs0
-
-# Bootstrap admin credentials.
-setParameter:
-  adminUser: <%= node['mongodb']['admin_user'] %>
-  adminPassword: <%= node['mongodb']['admin_password'] %>
