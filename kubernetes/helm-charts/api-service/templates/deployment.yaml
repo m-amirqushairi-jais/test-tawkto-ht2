@@ -14,10 +14,21 @@ spec:
       labels:
         app: api-service
     spec:
+      # improvement 1 - spread pods across nodes so a single node failure doesn't take down all replicas at once
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: api-service
       containers:
         - name: api-service
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # improvement 2 - restrict what the container process can do at OS level; values come from securityContext in values.yaml
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
           env:
@@ -27,6 +38,11 @@ spec:
               value: "{{ .Values.mongo.uri }}"
             - name: MONGO_DB
               value: "{{ .Values.mongo.db }}"
+            - name: MONGO_PASSWORD # improvement 3 - read from Kubernetes Secret instead of hardcoded in values.yaml
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongo
+                  key: mongo-password
           livenessProbe:
             httpGet:
               path: /

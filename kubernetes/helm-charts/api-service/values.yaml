@@ -2,22 +2,21 @@ replicaCount: 2
 
 image:
   repository: api-service
-  tag: sandbox # task 1: fix 8 - remove latest tag and use a specific tag for the sandbox environment to ensure consistency and reproducibility of deployments.
-  pullPolicy: IfNotPresent # task 1: fix 9 - set pull policy to IfNotPresent to avoid unnecessary image pulls in the sandbox environment, which can speed up deployments and reduce load on the container registry.
+  tag: sandbox
+  pullPolicy: IfNotPresent
 
 service:
   port: 80
   targetPort: 3000
 
-# MongoDB connection settings. The password is here so the chart is
-# "self-contained" and easy to deploy.
+# MongoDB connection settings.
+# Credentials must be injected via Kubernetes Secret, not stored in values.
 mongo:
   db: api_service
-  uri: "mongodb://mongodb-0.mongodb.data.svc.cluster.local:27017/api_service?replicaSet=rs0" # task 1: fix 10 - remove hardcoded MongoDB URI and credentials from the values file; these should be provided at runtime via environment variables or a secrets manager to enhance security and flexibility of the deployment.
+  uri: "mongodb://mongodb-0.mongodb.data.svc.cluster.local:27017/api_service?replicaSet=rs0"
   password: ""
 
-# task 1: fix 11 - need to define cpu and memory requests and limits in the values file to provide a baseline for resource allocation; this helps to ensure that the application has enough resources to run effectively while also preventing it from consuming excessive resources in the cluster.
-resources: 
+resources:
   requests:
     cpu: 50m
     memory: 64Mi
@@ -25,9 +24,15 @@ resources:
     cpu: 200m
     memory: 128Mi
 
-# Pod disruption budget for the workload.
+# improvement 2 - restricts container OS-level permissions; runAsNonRoot prevents root exploits, readOnlyRootFilesystem blocks file tampering, allowPrivilegeEscalation:false prevents sudo-style escalation
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+# Pod disruption budget — requires replicaCount >= 2 to be effective.
 pdb:
-  enabled: true # task 1: fix 12 - enable Pod Disruption Budget to ensure that at least one replica of the application is always available during voluntary disruptions (e.g., node maintenance), which helps to improve the availability and reliability of the application in the sandbox environment.
+  enabled: true
   minAvailable: 1
 
 nodeSelector: {}

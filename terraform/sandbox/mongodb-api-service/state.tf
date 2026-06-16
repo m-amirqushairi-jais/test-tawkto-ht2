@@ -1,7 +1,7 @@
 terraform {
-  backend "s3" {
+  # improvement 8 - replaced S3 (AWS) backend with GCS; S3 region us-east-1 mismatches GCP provider and has no state locking for GCP projects
+  backend "gcs" {
     bucket = "synthetic-terraform-state-sandbox"
-    key    = "mongodb-api-service/terraform.tfstate"
-    region = "us-east-1"
+    prefix = "mongodb-api-service"
   }
 }

@@ -18,8 +18,8 @@ module "mongodb" {
   source = "../../modules/mongodb-instance"
 
   name          = "mongodb-api-service"
-  replica_count = 2
-  zone          = "us-central1-a"
+  replica_count = 3           # improvement 7 - odd count is required for replica set majority election; 2 nodes cannot elect a primary on failure
+  zones         = ["us-central1-a", "us-central1-b", "us-central1-c"] # improvement 5 - three zones so each replica lands in a different zone
   disk_size_gb  = 100
 
   labels = {

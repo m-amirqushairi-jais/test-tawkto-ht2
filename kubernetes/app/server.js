@@ -16,12 +16,16 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const MONGO_DB = process.env.MONGO_DB || 'api_service';
 
-// A single shared client. Connection options (pool size, timeouts) are
-// intentionally minimal here — tuning them is part of the exercise.
 let client;
 async function getClient() {
   if (!client) {
-    client = new MongoClient(MONGO_URI);
+    client = new MongoClient(MONGO_URI, {
+      // improvement 4 - explicit timeouts so the app fails fast if mongo is unreachable (default is 30s hang); pool reuses connections instead of opening a new one per request
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 5000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+    });
     await client.connect();
   }
   return client;

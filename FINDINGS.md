@@ -67,3 +67,11 @@ what you would do. Severity tags (blocker / should-fix / nice-to-have) are welco
 
 ## Anything I'd do with more time
 
+- **Task 1**: Add `securityContext` to the Deployment — `runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false` — to enforce container hardening at the platform level.
+- **Task 1**: Wire up the existing `secret.yaml` Secret to the Deployment via `secretKeyRef` so MongoDB credentials are never passed as plain env var values.
+- **Task 1**: Add topology spread constraints so the 2 replicas are guaranteed to land on different nodes, not just different pods on the same node.
+- **Task 1**: Tune `MongoClient` options in `server.js` — add `serverSelectionTimeoutMS`, `connectTimeoutMS`, `maxPoolSize` — so the health check fails fast rather than hanging indefinitely on a slow database.
+- **Task 2**: Replace S3 backend with GCS and distribute replica set instances across `us-central1-a/b/c` for real zone-level high availability.
+- **Task 2**: Add network tags and a companion firewall rule resource to the module so port 27017 is locked down at provisioning time, not as a separate manual step.
+- **Task 3**: Add `apt_repository` or `yum_repository` resource before the package install — without the official MongoDB repo configured, the cookbook cannot converge on a fresh host.
+- **Task 3**: Replace `admin_password` attribute with Chef Vault or an encrypted data bag so credentials never live in source control or the Chef Server node object.
